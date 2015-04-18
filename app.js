@@ -15,8 +15,10 @@ app.controller('MainController', function() {
       if (!this.currentPost.title || this.currentPost.title == '') {
          return;
       }
+
       this.currentPost.upvotes = 0;
       this.posts.push(this.currentPost);
+
       this.currentPost = {}
    }
 
