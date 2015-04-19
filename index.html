@@ -17,7 +17,7 @@
             <h1>Flapper News</h1>
         </div>
 
-        <div ng-repeat="post in mainCtrl.posts | orderBy:'-upvotes'">
+        <div ng-repeat="post in mainCtrl.getPosts() | orderBy:'-upvotes'">
         <span class="glyphicon glyphicon-thumbs-up"
               ng-click="mainCtrl.incrementUpvote(post)"></span>
             {{post.upvotes}}

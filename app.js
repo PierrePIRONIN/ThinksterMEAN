@@ -1,7 +1,9 @@
 var app = angular.module('flapperNews', []);
 
-app.controller('MainController', function() {
-   this.posts = [
+app.factory('posts', function() {
+   var service = {};
+
+   service.posts = [
       {title: 'post 1', upvotes: 5},
       {title: 'post 2', upvotes: 2},
       {title: 'post 3', upvotes: 15},
@@ -9,7 +11,16 @@ app.controller('MainController', function() {
       {title: 'post 5', upvotes: 4}
    ];
 
+   return service;
+});
+
+app.controller('MainController', ['posts', function(posts) {
+
    this.currentPost = {}
+
+   this.getPosts = function() {
+     return posts.posts;
+   };
 
    this.addPost = function() {
       if (!this.currentPost.title || this.currentPost.title == '') {
@@ -17,7 +28,7 @@ app.controller('MainController', function() {
       }
 
       this.currentPost.upvotes = 0;
-      this.posts.push(this.currentPost);
+      posts.posts.push(this.currentPost);
 
       this.currentPost = {}
    }
@@ -25,4 +36,4 @@ app.controller('MainController', function() {
    this.incrementUpvote = function(post) {
       post.upvotes += 1;
    }
-});
+}]);
