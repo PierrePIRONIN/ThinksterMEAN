@@ -10,4 +10,4 @@ var PostSchema = mongoose.Schema({
     }]
 });
 
-mongoose.schema('Post', PostSchema);
+mongoose.model('Post', PostSchema);

@@ -19,54 +19,6 @@ app.config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $u
 app.factory('posts', function () {
     var service = {};
 
-    service.posts = [
-        {
-            title: 'post 1',
-            upvotes: 5,
-            comments: [
-                {author: 'me', body: 'Fake 1', upvotes: 0},
-                {author: 'you', body: 'Fake 2', upvotes: 0},
-                {author: 'him', body: 'Fake 3', upvotes: 0},
-            ]
-        },
-        {
-            title: 'post 2',
-            upvotes: 2,
-            comments: [
-                {author: 'me', body: 'Fake 11', upvotes: 0},
-                {author: 'you', body: 'Fake 22', upvotes: 0},
-                {author: 'him', body: 'Fake 33', upvotes: 0},
-            ]
-        },
-        {
-            title: 'post 3',
-            upvotes: 15,
-            comments: [
-                {author: 'me', body: 'Fake 111', upvotes: 0},
-                {author: 'you', body: 'Fake 222', upvotes: 0},
-                {author: 'him', body: 'Fake 333', upvotes: 0},
-            ]
-        },
-        {
-            title: 'post 4',
-            upvotes: 9,
-            comments: [
-                {author: 'me', body: 'Fake 1111', upvotes: 0},
-                {author: 'you', body: 'Fake 2222', upvotes: 0},
-                {author: 'him', body: 'Fake 3333', upvotes: 0},
-            ]
-        },
-        {
-            title: 'post 5',
-            upvotes: 4,
-            comments: [
-                {author: 'me', body: 'Fake 11111', upvotes: 0},
-                {author: 'you', body: 'Fake 22222', upvotes: 0},
-                {author: 'him', body: 'Fake 33333', upvotes: 0},
-            ]
-        }
-    ];
-
     return service;
 });
 
