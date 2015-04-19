@@ -4,6 +4,7 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var mongoose = require('mongoose');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
@@ -56,5 +57,9 @@ app.use(function(err, req, res, next) {
   });
 });
 
+// connect to local mongo server
+mongoose.connect('mongodb://localhost/news');
+require('./models/Posts');
+require('./models/Comments');
 
 module.exports = app;
