@@ -49,7 +49,7 @@ router.put('/posts/:post/upvote', function (req, res, next) {
     });
 });
 
-router.post('posts/:post/comments', function (req, res, next) {
+router.post('/posts/:post/comments', function (req, res, next) {
     var comment = new Comment(req.body);
     comment.post = req.post;
 
@@ -64,6 +64,15 @@ router.post('posts/:post/comments', function (req, res, next) {
             }
             res.json(comment);
         });
+    });
+});
+
+router.put('/posts/:post/comments/:comment/upvote', function(req, res, next) {
+    req.comment.upvoteToto(function(err, comment) {
+        if (err) {
+            return next(err);
+        }
+        res.json(comment);
     });
 });
 
@@ -83,7 +92,7 @@ router.param('post', function (req, res, next, id) {
     });
 });
 
-router.params('comment', function (res, req, next, id) {
+router.param('comment', function (res, req, next, id) {
     var query = Comment.findById(id);
 
     query.exec(function (err, comment) {

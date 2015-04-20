@@ -10,4 +10,9 @@ var CommentSchema = mongoose.Schema({
     }
 });
 
+CommentSchema.methods.upvoteToto = function(cb) {
+    this.upvotes +=1;
+    this.save(cb);
+};
+
 mongoose.model('Comment', CommentSchema);
