@@ -61,23 +61,76 @@ app.factory('posts', ['$http', function ($http) {
 
     service.addComment = function (post, comment) {
         return $http.post('/posts/' + post._id + '/comments', comment)
-            .success(function(data) {
+            .success(function (data) {
                 post.comments.push(data);
             });
     };
 
-    service.incrementUpvoteComment = function(post, comment) {
+    service.incrementUpvoteComment = function (post, comment) {
         return $http.put('/posts/' + post._id + '/comments/' + comment._id + '/upvote')
-            .success(function(data) {
-               comment.upvotes += 1;
+            .success(function (data) {
+                comment.upvotes += 1;
             })
-            .error(function(err) {
+            .error(function (err) {
                 window.alert(err);
             });
     };
 
     return service;
 }]);
+
+app.factory('auth', ['$http', '$window', function ($http, $window) {
+    var auth = {};
+
+    auth.setToken = function (token) {
+        $window.localStorage['flapper-news-token'] = token;
+    };
+
+    auth.getToken = function () {
+        return $window.localStorage['flapper-news-token'];
+    }
+
+    auth.isLoggedIn = function () {
+        var token = auth.getToken();
+
+        if (!token) {
+            return false;
+        }
+
+        var payload = JSON.parse($window.atob(token.split('.')[1]));
+        return payload.exp > Date.now() / 1000;
+    };
+
+    auth.currentUser = function () {
+        if (auth.isLoggedIn()) {
+            var token = auth.getToken();
+            var payload = JSON.parse($window.atob(token.split('.')[1]));
+            return payload.username;
+        }
+    };
+
+    auth.register = function (user) {
+        return $http.post('/register', user)
+            .success(function (data) {
+                auth.setToken(data.token);
+            });
+    };
+
+    auth.logIn = function (user) {
+        return $http.post('/login', user)
+            .success(function (data) {
+                auth.setToken(data.token);
+            });
+    };
+
+    auth.logOut = function() {
+        $window.localStorage.removeItem('flapper-news-token');
+    };
+
+    return auth;
+}
+])
+;
 
 app.controller('MainController', ['posts', function (posts) {
     this.currentPost = {}
