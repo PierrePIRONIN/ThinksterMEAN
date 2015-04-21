@@ -9,11 +9,20 @@
     <script src="http://cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
     <script src="/javascripts/angularApp.js"></script>
     <style> .glyphicon-thumbs-up {
-        cursor: pointer
-    } </style>
+            cursor: pointer
+        } </style>
 </head>
 
 <body ng-app="flapperNews" style="margin: 0 30px 0 30px;">
+<nav class="navbar navbar-default pull-right" ng-controller="NavController as navCtrl">
+    <ul class="nav navbar-nav">
+        <li ng-show="navCtrl.isLoggedIn()"><a>{{ navCtrl.currentUser() }}</a></li>
+        <li ng-show="navCtrl.isLoggedIn()"><a href="" ng-click="navCtrl.logOut()">Log Out</a></li>
+        <li ng-hide="navCtrl.isLoggedIn()"><a href="/#/login">Log In</a></li>
+        <li ng-hide="navCtrl.isLoggedIn()"><a href="/#/register">Register</a></li>
+    </ul>
+</nav>
+
 <div class="row">
     <div class="col-md-6 col-md-offset-3">
         <ui-view></ui-view>
@@ -40,9 +49,12 @@
         <span>
             <a href="#/posts/{{post._id}}">Comments</a>
         </span>
+        <span ng-show="post.author">
+            posted by <a>{{post.author}}</a> |
+        </span>
     </div>
 
-    <form ng-submit="mainCtrl.addPost()" style="margin-top:30px;">
+    <form ng-submit="mainCtrl.addPost()" style="margin-top:30px;" ng-show="mainCtrl.isLoggedIn()">
         <h3>Add a new post</h3>
 
         <div class="form-group">
@@ -53,6 +65,9 @@
         </div>
         <button type="submit" class="btn btn-primary">Post</button>
     </form>
+    <div ng-hide="mainCtrl.isLoggedIn()">
+        <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can add a post.</h3>
+    </div>
 </script>
 
 <script type="text/ng-template" id="/post.html">
@@ -70,25 +85,87 @@
     <div ng-repeat="comment in postsCtrl.post.comments | orderBy:'-upvotes'">
         <span class="glyphicon glyphicon-thumbs-up"
               ng-click="postsCtrl.incrementUpvotes(comment)"></span>
-            {{comment.upvotes}} - by {{comment.author}}
+        {{comment.upvotes}} - by {{comment.author}}
         <span style="font-size:20px; margin-left:10px;">
           {{comment.body}}
         </span>
     </div>
 
     <form ng-submit="postsCtrl.addComment()"
-          style="margin-top:30px;">
+          style="margin-top:30px;"
+          ng-show="postsCtrl.isLoggedIn()">
         <h3>Add a new comment</h3>
 
         <div class="form-group">
             <input type="text"
                    class="form-control"
                    placeholder="Comment"
-                   ng-model="postsCtrl.comment.body"></input>
+                   ng-model="postsCtrl.comment.body">
         </div>
         <button type="submit" class="btn btn-primary">Post</button>
     </form>
+    <div ng-hide="postsCtrl.isLoggedIn()">
+        <h3>You need to <a href="/#/login">Log In</a> or <a href="/#/register">Register</a> before you can comment.</h3>
+    </div>
 </script>
 
-</body >
-</html >
+<script type="text/ng-template" id="/register.html">
+    <div class="page-header">
+        <h1>Flapper News</h1>
+    </div>
+
+    <div ng-show="authCtrl.error" class="alert alert-danger row">
+        <span>{{ authCtrl.error.message }}</span>
+    </div>
+
+    <form ng-submit="authCtrl.register()"
+          style="margin-top:30px;">
+        <h3>Register</h3>
+
+        <div class="form-group">
+            <input type="text"
+                   class="form-control"
+                   placeholder="Username"
+                   ng-model="authCtrl.user.username">
+        </div>
+        <div class="form-group">
+            <input type="password"
+                   class="form-control"
+                   placeholder="Password"
+                   ng-model="authCtrl.user.password">
+        </div>
+        <button type="submit" class="btn btn-primary">Register</button>
+    </form>
+</script>
+
+<script type="text/ng-template" id="/login.html">
+    <div class="page-header">
+        <h1>Flapper News</h1>
+    </div>
+
+    <div ng-show="authCtrl.error" class="alert alert-danger row">
+        <span>{{ authCtrl.error.message }}</span>
+    </div>
+
+    <form ng-submit="authCtrl.logIn()"
+          style="margin-top:30px;">
+        <h3>Log In</h3>
+
+        <div class="form-group">
+            <input type="text"
+                   class="form-control"
+                   placeholder="Username"
+                   ng-model="authCtrl.user.username">
+        </div>
+        <div class="form-group">
+            <input type="password"
+                   class="form-control"
+                   placeholder="Password"
+                   ng-model="authCtrl.user.password">
+        </div>
+        <button type="submit" class="btn btn-primary">Log In</button>
+    </form>
+</script>
+
+</body>
+</html>

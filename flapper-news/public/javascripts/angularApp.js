@@ -21,12 +21,32 @@ app.config(['$stateProvider', '$urlRouterProvider', function ($stateProvider, $u
                     return posts.getPost($stateParams.id);
                 }]
             }
+        })
+        .state('login', {
+            url: '/login',
+            templateUrl: '/login.html',
+            controller: 'AuthController as authCtrl',
+            onEnter: ['$state', 'auth', function ($state, auth) {
+                if (auth.isLoggedIn()) {
+                    $state.go('home');
+                }
+            }]
+        })
+        .state('register', {
+            url: '/register',
+            templateUrl: '/register.html',
+            controller: 'AuthController as authCtrl',
+            onEnter: ['$state', 'auth', function ($state, auth) {
+                if (auth.isLoggedIn()) {
+                    $state.go('home');
+                }
+            }]
         });
 
     $urlRouterProvider.otherwise('home');
 }]);
 
-app.factory('posts', ['$http', function ($http) {
+app.factory('posts', ['$http', 'auth', function ($http, auth) {
     var service = {
         posts: []
     };
@@ -46,31 +66,35 @@ app.factory('posts', ['$http', function ($http) {
     };
 
     service.addPost = function (post) {
-        return $http.post('/posts', post)
-            .success(function (data) {
-                service.posts.push(data);
-            });
+        return $http.post('/posts', post, {
+            headers: {Authorization: 'Bearer ' + auth.getToken()}
+        }).success(function (data) {
+            service.posts.push(data);
+        });
     };
 
     service.incrementUpvote = function (post) {
-        return $http.put('/posts/' + post._id + '/upvote')
-            .success(function (data) {
-                post.upvotes += 1;
-            });
+        return $http.put('/posts/' + post._id + '/upvote', null, {
+            headers: {Authorization: 'Bearer ' + auth.getToken()}
+        }).success(function (data) {
+            post.upvotes += 1;
+        });
     };
 
     service.addComment = function (post, comment) {
-        return $http.post('/posts/' + post._id + '/comments', comment)
-            .success(function (data) {
-                post.comments.push(data);
-            });
+        return $http.post('/posts/' + post._id + '/comments', comment, {
+            headers: {Authorization: 'Bearer ' + auth.getToken()}
+        }).success(function (data) {
+            post.comments.push(data);
+        });
     };
 
     service.incrementUpvoteComment = function (post, comment) {
-        return $http.put('/posts/' + post._id + '/comments/' + comment._id + '/upvote')
-            .success(function (data) {
-                comment.upvotes += 1;
-            })
+        return $http.put('/posts/' + post._id + '/comments/' + comment._id + '/upvote', null, {
+            headers: {Authorization: 'Bearer ' + auth.getToken()}
+        }).success(function (data) {
+            comment.upvotes += 1;
+        })
             .error(function (err) {
                 window.alert(err);
             });
@@ -123,17 +147,17 @@ app.factory('auth', ['$http', '$window', function ($http, $window) {
             });
     };
 
-    auth.logOut = function() {
+    auth.logOut = function () {
         $window.localStorage.removeItem('flapper-news-token');
     };
 
     return auth;
-}
-])
-;
+}]);
 
-app.controller('MainController', ['posts', function (posts) {
+app.controller('MainController', ['posts', 'auth', function (posts, auth) {
     this.currentPost = {}
+
+    this.isLoggedIn = auth.isLoggedIn;
 
     this.getPosts = function () {
         return posts.posts;
@@ -157,10 +181,12 @@ app.controller('MainController', ['posts', function (posts) {
     };
 }]);
 
-app.controller('PostsController', ['posts', 'post', function (posts, post) {
+app.controller('PostsController', ['posts', 'post', 'auth', function (posts, post, auth) {
     this.post = post;
-
     this.comment = {};
+
+    this.isLoggedIn = auth.isLoggedIn;
+
     this.addComment = function () {
         if (this.comment.body === '') {
             return;
@@ -178,4 +204,32 @@ app.controller('PostsController', ['posts', 'post', function (posts, post) {
     this.incrementUpvotes = function (comment) {
         posts.incrementUpvoteComment(this.post, comment);
     };
+}]);
+
+app.controller('AuthController', ['$state', 'auth', function ($state, auth) {
+    this.user = {};
+
+    this.register = function () {
+        auth.register(this.user)
+            .error(function (error) {
+                this.error = error;
+            }).then(function () {
+                $state.go('home');
+            });
+    };
+
+    this.logIn = function () {
+        auth.logIn(this.user)
+            .error(function (error) {
+                this.error = error;
+            }).then(function () {
+                $state.go('home');
+            });
+    };
+}]);
+
+app.controller('NavController', ['auth', function (auth) {
+    this.isLoggedIn = auth.isLoggedIn;
+    this.currentUser = auth.currentUser;
+    this.logOut = auth.logOut;
 }]);
